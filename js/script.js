@@ -80,7 +80,7 @@ function initMultiStepForms() {
     if (submitBtn) {
       submitBtn.addEventListener('click', () => {
         if (!validateStep(steps[currentStep - 1], { showErrors: true })) return;
-        window.location.href = new URL('thanks_send_01/', window.location.href).href;
+        window.location.href = getThanksPageUrl();
       });
     }
 
@@ -177,6 +177,27 @@ function toHalfWidthDigits(value) {
 
 function isValidEmail(value) {
   return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value);
+}
+
+function getThanksPageUrl() {
+  const url = new URL(window.location.href);
+
+  if (url.hostname === 'agent.fidia.jp') {
+    return 'https://agent.fidia.jp/thanks_send_01/';
+  }
+
+  if (url.protocol === 'file:') {
+    return 'https://y-k08.github.io/FIDIAAgent/thanks_send_01/';
+  }
+
+  let dir = url.pathname;
+  if (!dir.endsWith('/')) {
+    dir = dir.replace(/[^/]+$/, '');
+  }
+  url.pathname = `${dir}thanks_send_01/`;
+  url.search = '';
+  url.hash = '';
+  return url.href;
 }
 
 function hasKanji(value) {
