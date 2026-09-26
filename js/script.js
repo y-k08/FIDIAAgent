@@ -80,7 +80,7 @@ function initMultiStepForms() {
     if (submitBtn) {
       submitBtn.addEventListener('click', () => {
         if (!validateStep(steps[currentStep - 1], { showErrors: true })) return;
-        window.location.href = 'https://agent.fidia.jp/thanks_send_01/';
+        window.location.href = new URL('thanks_send_01/', window.location.href).href;
       });
     }
 
