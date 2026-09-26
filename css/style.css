@@ -23,6 +23,10 @@
   --color-advisor-border: #D9D9D9;
   --color-job-border: #2E6C8E;
   --color-sticky: #D3EEFF;
+  --color-thanks-bg: #FFF8F8;
+  --color-thanks-copy: #434343;
+  --color-line: #5AC464;
+  --color-error: #F14F4F;
 
   --font-jp: "Noto Sans JP", sans-serif;
   --font-en: "DM Sans", sans-serif;
@@ -233,88 +237,82 @@ input:focus-visible {
   line-height: 1.6em;
 }
 
-.form-card__steps-track {
-  display: flex;
-  align-items: flex-start;
-  width: 300%;
-  overflow: hidden;
-  transition: transform 0.45s ease, height 0.35s ease;
-}
-
-.form-step {
-  width: 33.3333%;
-  flex-shrink: 0;
-}
-
 .form-card__body {
   padding: 20px;
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 14px;
+  gap: 20px;
+}
+
+.form-card__panels {
+  width: 100%;
+}
+
+.form-step {
+  display: none;
+  width: 100%;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.form-step.is-current {
+  display: flex;
 }
 
 /* ---- ステップインジケーター ---- */
 .step-indicator {
   display: flex;
-  justify-content: space-between;
   align-items: center;
   width: 100%;
-  max-width: 277px;
-  position: relative;
-  padding-bottom: 6px;
+  max-width: 283px;
+  gap: 8px;
 }
 
-.step-indicator::before,
-.step-indicator::after {
-  content: "";
-  position: absolute;
-  top: 27px;
-  height: 2px;
-  width: 30px;
+.step-indicator__line {
+  flex: 1;
+  height: 1px;
   background: var(--color-gray-line);
 }
 
-.step-indicator::before { left: 67px; }
-.step-indicator::after { left: 177px; }
+.step-indicator__item.is-done + .step-indicator__line {
+  background: var(--color-pink);
+}
 
 .step-indicator__item {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 2px;
-  z-index: 1;
+  flex-shrink: 0;
 }
 
 .step-indicator__circle {
-  width: 50px;
-  height: 50px;
+  width: 30px;
+  height: 30px;
   border-radius: 50%;
   display: flex;
   align-items: center;
   justify-content: center;
   background: var(--color-gray-line);
-  border: 2px solid var(--color-gray-line);
   color: var(--color-white);
   font-weight: 700;
-  font-size: 20px;
+  font-size: 11px;
 }
 
-.step-indicator__label {
-  font-size: 16px;
-  font-weight: 500;
-  color: var(--color-gray-disabled);
+.step-indicator__check {
+  display: none;
+  width: 12px;
+  height: 9px;
 }
 
-/* 現在表示中のステップのみピンクにする（完了済みステップは通常色に戻す） */
-.step-indicator__item.is-active .step-indicator__circle {
+.step-indicator__item.is-active .step-indicator__circle,
+.step-indicator__item.is-done .step-indicator__circle {
   background: var(--color-pink);
-  border-color: var(--color-pink);
 }
 
-.step-indicator__item.is-active .step-indicator__label,
-.step-indicator__item.is-done .step-indicator__label {
-  color: var(--color-text);
+.step-indicator__item.is-done .step-indicator__number {
+  display: none;
+}
+
+.step-indicator__item.is-done .step-indicator__check {
+  display: block;
 }
 
 /* ---- 入力項目 ---- */
@@ -322,32 +320,55 @@ input:focus-visible {
   width: 100%;
   display: flex;
   flex-direction: column;
-  align-items: center;
-  gap: 8px;
+  align-items: stretch;
+  gap: 5px;
 }
 
-.form-field--highlight {
-  background: var(--color-pink-light);
-  padding: 16px;
-  gap: 16px;
+.form-field--gender {
+  gap: 2px;
+}
+
+.form-field__label-row {
+  display: flex;
+  align-items: center;
+  gap: 7px;
 }
 
 .form-field__label {
-  align-self: flex-start;
-  font-weight: 700;
+  font-weight: 500;
   font-size: 16px;
   color: var(--color-text);
 }
 
-.form-field--highlight .form-field__label {
-  align-self: center;
+.form-field__required {
+  color: var(--color-error);
+  font-weight: 500;
+  font-size: 10px;
+  line-height: 1;
+  padding-bottom: 2px;
 }
 
-.form-field__label--bar {
-  width: 100%;
-  text-align: center;
-  background: var(--color-pink-light);
-  padding: 6px 0;
+.form-field__error {
+  display: none;
+  color: var(--color-error);
+  font-weight: 500;
+  font-size: 14px;
+}
+
+.form-field.is-error .form-field__error {
+  display: block;
+}
+
+.form-field.is-error .text-input {
+  border-color: var(--color-error);
+}
+
+.form-field.is-error .option-button {
+  border-color: var(--color-error);
+}
+
+.form-field.is-error .checkbox-row__box {
+  border-color: var(--color-error);
 }
 
 .option-row {
@@ -357,31 +378,33 @@ input:focus-visible {
   width: 100%;
 }
 
-.option-row--triple .option-button {
-  padding: 10px 0;
+.option-row--triple {
+  gap: 6px;
 }
 
 .option-button {
   flex: 1;
-  padding: 12px 0;
-  border: 2px solid var(--color-pink);
+  min-height: 48px;
+  padding: 0;
+  border: 1px solid var(--color-input-border);
   border-radius: 5px;
   background: var(--color-white);
   font-weight: 700;
   font-size: 16px;
   color: var(--color-text);
-  transition: background 0.15s, color 0.15s;
+  transition: background 0.15s, color 0.15s, border-color 0.15s;
 }
 
 .option-button--small {
+  min-height: 0;
+  padding: 10px 0;
   font-size: 13px;
-  font-weight: 700;
-  border-width: 1px;
   border-radius: 6px;
 }
 
 .option-button.is-selected {
   background: var(--color-pink);
+  border-color: var(--color-pink);
   color: var(--color-white);
 }
 
@@ -390,7 +413,7 @@ input:focus-visible {
   padding: 12px 14px;
   border: 1px solid var(--color-input-border);
   border-radius: 8px;
-  font-size: 14px;
+  font-size: 16px;
   font-family: var(--font-jp);
   color: var(--color-text);
 }
@@ -399,40 +422,220 @@ input:focus-visible {
   color: var(--color-gray-placeholder);
 }
 
+.university-suggest {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.university-suggest__control {
+  display: flex;
+  align-items: center;
+  min-height: 48px;
+  padding: 0 4px 0 14px;
+  gap: 4px;
+  border: 1px solid var(--color-advisor-border);
+  border-radius: 8px;
+  background: var(--color-white);
+}
+
+.university-suggest__control .text-input {
+  flex: 1;
+  min-width: 0;
+  padding: 12px 0;
+  border: 0;
+  background: transparent;
+  font-size: 16px;
+}
+
+.university-suggest__control .text-input:focus {
+  outline: none;
+}
+
+.university-suggest.is-focused .university-suggest__control {
+  border-color: var(--color-pink);
+  border-width: 2px;
+  padding-left: 13px;
+  box-shadow: 0 0 0 4px rgba(245, 152, 152, 0.18);
+}
+
+.university-suggest.is-filled .university-suggest__control {
+  background: #FFF1F1;
+  border-color: #F7C4C4;
+}
+
+.university-suggest.is-filled.is-focused .university-suggest__control {
+  border-color: var(--color-pink);
+}
+
+.form-field.is-error .university-suggest__control {
+  border-color: var(--color-error);
+}
+
+.university-suggest__clear {
+  flex-shrink: 0;
+  width: 44px;
+  height: 44px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background: transparent;
+  border: 0;
+  cursor: pointer;
+}
+
+.university-suggest__clear-icon {
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  background: #C9C9C9;
+  color: var(--color-white);
+  font-weight: 700;
+  font-size: 13px;
+  line-height: 22px;
+  text-align: center;
+}
+
+.university-suggest__hint {
+  font-size: 12px;
+  line-height: 1.5;
+  color: #8A8A8A;
+}
+
+.university-suggest__panel {
+  background: var(--color-white);
+  border: 1px solid var(--color-advisor-border);
+  border-radius: 10px;
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.08);
+  overflow: hidden;
+}
+
+.university-suggest__list {
+  list-style: none;
+}
+
+.university-suggest__option {
+  width: 100%;
+  height: 48px;
+  padding: 0 14px;
+  display: flex;
+  align-items: center;
+  background: var(--color-white);
+  border: 0;
+  border-bottom: 1px solid #F0F0F0;
+  color: var(--color-text);
+  font-size: 15px;
+  line-height: 1.5;
+  text-align: left;
+  cursor: pointer;
+}
+
+.university-suggest__option:last-child {
+  border-bottom: 0;
+}
+
+.university-suggest__option.is-active {
+  background: #FFF1F1;
+}
+
+.university-suggest mark {
+  background: none;
+  color: #E97F7F;
+  font-weight: 700;
+  padding: 0;
+}
+
+.university-suggest__empty {
+  padding: 16px;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.university-suggest__empty:not([hidden]) {
+  display: flex;
+}
+
+.university-suggest [hidden] {
+  display: none;
+}
+
+.university-suggest__empty p {
+  font-size: 13px;
+  line-height: 1.5;
+  color: var(--color-text);
+}
+
+.university-suggest__use {
+  min-height: 44px;
+  padding: 0 12px;
+  border: 1px dashed var(--color-pink);
+  border-radius: 8px;
+  background: var(--color-white);
+  color: #E97F7F;
+  font-weight: 700;
+  font-size: 14px;
+  line-height: 1.5;
+  text-align: left;
+  cursor: pointer;
+}
+
 .fields-container {
   width: 100%;
   display: flex;
   flex-direction: column;
-  gap: 14px;
+  gap: 20px;
 }
 
 .form-field--privacy {
-  align-items: stretch;
   gap: 8px;
-  padding-top: 4px;
 }
 
 .privacy-link {
-  font-size: 10px;
-  color: var(--color-text);
+  color: inherit;
   text-decoration: underline;
 }
 
 .checkbox-row {
+  position: relative;
   display: flex;
-  align-items: flex-start;
+  align-items: center;
   gap: 8px;
-  font-size: 10px;
+  padding-top: 2px;
+  font-size: 14px;
+  font-weight: 500;
   line-height: 15px;
   color: var(--color-text);
-  padding-top: 2px;
+  cursor: pointer;
 }
 
 .checkbox-row input {
-  width: 16px;
-  height: 16px;
-  margin-top: 1px;
-  accent-color: var(--color-pink);
+  position: absolute;
+  opacity: 0;
+  width: 1px;
+  height: 1px;
+  pointer-events: none;
+}
+
+.checkbox-row__box {
+  flex-shrink: 0;
+  width: 20px;
+  height: 20px;
+  border: 1px solid var(--color-gray-placeholder);
+  border-radius: 3px;
+  background: var(--color-white);
+  display: block;
+}
+
+.checkbox-row input:checked + .checkbox-row__box {
+  background: var(--color-pink) url("../assets/icons/step-check.svg") center no-repeat;
+  background-size: 12px 9px;
+  border-color: var(--color-pink);
+}
+
+.checkbox-row input:focus-visible + .checkbox-row__box {
+  outline: 2px solid var(--color-pink);
+  outline-offset: 2px;
 }
 
 /* ---- ボタン群 ---- */
@@ -448,23 +651,19 @@ input:focus-visible {
   font-size: 16px;
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
   transition: background 0.2s, border-color 0.2s;
+  cursor: pointer;
 }
 
 .next-button--wide {
   max-width: 248px;
   padding: 12px 32px;
+  font-size: 15px;
   border-radius: 6px;
 }
 
-.next-button:not(:disabled),
 .next-button.is-ready {
   background: var(--color-pink);
   border-color: var(--color-pink-border);
-  cursor: pointer;
-}
-
-.next-button:disabled {
-  cursor: not-allowed;
 }
 
 .actions-row {
@@ -479,7 +678,6 @@ input:focus-visible {
   font-weight: 700;
   font-size: 15px;
   color: var(--color-text);
-  text-decoration: underline;
 }
 
 /* ==========================================================================
@@ -1480,6 +1678,177 @@ input:focus-visible {
 /* FVのCTAボタンと同じ「光が流れる」演出のためクリッピングを追加 */
 .cta-button--sticky {
   overflow: hidden;
+}
+
+/* ==========================================================================
+   THANKS
+   ========================================================================== */
+html:has(.thanks-page) {
+  background: var(--color-white);
+}
+
+.thanks-page {
+  background: var(--color-thanks-bg);
+}
+
+.thanks {
+  min-height: 100vh;
+  padding: 50px 0 30px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-start;
+  gap: 47px;
+  background: var(--color-thanks-bg);
+}
+
+.thanks__main {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 20px;
+}
+
+.thanks__badge {
+  width: 310px;
+  height: 53px;
+  padding: 4px 0 0;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background: var(--color-pink);
+  border-radius: 6px;
+}
+
+.thanks__badge h1 {
+  color: var(--color-white);
+  font-family: var(--font-en);
+  font-weight: 700;
+  font-size: 26px;
+  letter-spacing: 0.13em;
+  line-height: 1;
+}
+
+.thanks__lead {
+  color: var(--color-pink);
+  font-family: var(--font-en);
+  font-weight: 700;
+  font-size: 24px;
+  letter-spacing: 0.03em;
+  text-align: center;
+  line-height: 35px;
+}
+
+.thanks__line {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 15px;
+}
+
+.thanks__line-lead {
+  color: var(--color-text);
+  font-weight: 600;
+  font-size: 14px;
+  line-height: 1.6em;
+  text-align: center;
+}
+
+.thanks__line-card {
+  width: 310px;
+  border-radius: 6px;
+  box-shadow: 0 0 4.9px 0 rgba(0, 0, 0, 0.25);
+  overflow: hidden;
+}
+
+.thanks__line-head {
+  width: 100%;
+  height: 40px;
+  padding: 7px 0 5px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 7.5px;
+  background: var(--color-line);
+}
+
+.thanks__line-head-logo {
+  width: 119.43px;
+  height: 17.14px;
+}
+
+.thanks__line-head-label {
+  color: var(--color-white);
+  font-weight: 700;
+  font-size: 14.5px;
+  line-height: 1.6em;
+}
+
+.thanks__line-body {
+  width: 100%;
+  padding: 18px 0 22px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  gap: 13px;
+  background: var(--color-white);
+}
+
+.thanks__line-qr {
+  width: 109px;
+  height: 109px;
+}
+
+.thanks__line-btn {
+  position: relative;
+  overflow: hidden;
+  width: 213px;
+  height: 43px;
+  padding: 3px 0 0;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 6.8px;
+  background: var(--color-line);
+  border-radius: 5px;
+  box-shadow: 0 0 5.17px 0 rgba(0, 0, 0, 0.25);
+}
+
+.thanks__line-btn-icon {
+  position: relative;
+  z-index: 1;
+  width: 19.58px;
+  height: 18.65px;
+  flex-shrink: 0;
+}
+
+.thanks__line-btn-label {
+  position: relative;
+  z-index: 1;
+  color: var(--color-white);
+  font-family: var(--font-en);
+  font-weight: 700;
+  font-size: 14px;
+  letter-spacing: 0.03em;
+  line-height: 1;
+}
+
+.thanks__note {
+  color: var(--color-thanks-copy);
+  font-weight: 600;
+  font-size: 16px;
+  line-height: 1.6em;
+  text-align: center;
+}
+
+.thanks__logo-wrap {
+  padding: 10px 0 0;
+}
+
+.thanks__logo {
+  width: 131.72px;
+  height: 18.91px;
 }
 
 /* ==========================================================================
