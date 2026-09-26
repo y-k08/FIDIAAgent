@@ -240,8 +240,33 @@ function bindUniversitySuggest(root, getUniversities, dataPromise) {
   let activeIndex = -1;
   let currentResults = [];
   let isOpen = false;
+  let isComposing = false;
+  let confirmLock = false;
+  let confirmedValue = '';
+
+  input.addEventListener('compositionstart', () => {
+    isComposing = true;
+  });
+
+  input.addEventListener('compositionend', () => {
+    isComposing = false;
+    if (confirmLock) {
+      input.value = confirmedValue;
+      return;
+    }
+    if (canSuggestUniversity(input.value)) scheduleSearch(0);
+  });
 
   input.addEventListener('input', () => {
+    if (confirmLock) {
+      input.value = confirmedValue;
+      return;
+    }
+    if (isComposing) return;
+    if (root.classList.contains('is-filled') && input.value === confirmedValue) {
+      updateChrome();
+      return;
+    }
     root.classList.remove('is-filled');
     updateChrome();
     scheduleSearch();
@@ -249,7 +274,7 @@ function bindUniversitySuggest(root, getUniversities, dataPromise) {
 
   input.addEventListener('focus', () => {
     root.classList.add('is-focused');
-    if (canSuggestUniversity(input.value)) scheduleSearch(0);
+    if (!confirmLock && canSuggestUniversity(input.value)) scheduleSearch(0);
   });
 
   input.addEventListener('blur', () => {
@@ -260,6 +285,7 @@ function bindUniversitySuggest(root, getUniversities, dataPromise) {
   });
 
   input.addEventListener('keydown', (event) => {
+    if (event.isComposing || event.keyCode === 229 || isComposing) return;
     if (event.key === 'Escape') {
       closePanel();
       return;
@@ -380,12 +406,23 @@ function bindUniversitySuggest(root, getUniversities, dataPromise) {
   }
 
   function confirmValue(value) {
+    confirmedValue = value;
+    confirmLock = true;
+    clearTimeout(debounceTimer);
+    isComposing = false;
+    input.blur();
     input.value = value;
-    input.dispatchEvent(new Event('input', { bubbles: true }));
     root.classList.toggle('is-filled', [...value].length >= 2);
     closePanel();
     updateChrome();
-    input.focus();
+    window.requestAnimationFrame(() => {
+      input.focus();
+      window.setTimeout(() => {
+        input.value = confirmedValue;
+        confirmLock = false;
+        input.dispatchEvent(new Event('input', { bubbles: true }));
+      }, 50);
+    });
   }
 
   function moveActive(delta) {
