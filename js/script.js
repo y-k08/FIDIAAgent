@@ -179,9 +179,19 @@ function isValidEmail(value) {
   return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value);
 }
 
+function hasKanji(value) {
+  return /[\u3400-\u9FFF]/.test(value);
+}
+
+function canSuggestUniversity(value) {
+  const query = value.trim();
+  if (!query) return false;
+  return [...query].length >= 2 || hasKanji(query);
+}
+
 /* --------------------------------------------------------------------------
    大学名サジェスト
-   2文字以上で候補を出し、リストにない名前も手入力のまま次へ進める。
+   漢字は1文字、それ以外は2文字以上で候補を出す。
    -------------------------------------------------------------------------- */
 function initUniversitySuggest() {
   const roots = document.querySelectorAll('.js-university-suggest');
@@ -239,7 +249,7 @@ function bindUniversitySuggest(root, getUniversities, dataPromise) {
 
   input.addEventListener('focus', () => {
     root.classList.add('is-focused');
-    if ([...input.value.trim()].length >= 2) scheduleSearch(0);
+    if (canSuggestUniversity(input.value)) scheduleSearch(0);
   });
 
   input.addEventListener('blur', () => {
@@ -265,7 +275,7 @@ function bindUniversitySuggest(root, getUniversities, dataPromise) {
       if (currentResults.length > 0 && activeIndex >= 0) {
         event.preventDefault();
         confirmValue(currentResults[activeIndex].name);
-      } else if (currentResults.length === 0 && [...input.value.trim()].length >= 2) {
+      } else if (currentResults.length === 0 && canSuggestUniversity(input.value)) {
         event.preventDefault();
         confirmValue(input.value.trim());
       }
@@ -294,7 +304,7 @@ function bindUniversitySuggest(root, getUniversities, dataPromise) {
   function scheduleSearch(delay = 200) {
     clearTimeout(debounceTimer);
     const query = input.value.trim();
-    if ([...query].length < 2) {
+    if (!canSuggestUniversity(query)) {
       closePanel();
       return;
     }
