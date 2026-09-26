@@ -293,7 +293,7 @@ input:focus-visible {
   background: var(--color-gray-line);
   color: var(--color-white);
   font-weight: 700;
-  font-size: 11px;
+  font-size: 13px;
 }
 
 .step-indicator__check {

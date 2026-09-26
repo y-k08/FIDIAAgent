@@ -110,20 +110,29 @@ function initMultiStepForms() {
       }
 
       const value = field.value.trim();
-      if (!value) return '入力してください。';
+      if (!value) {
+        if (field.name === 'name') return 'お名前を入力してください';
+        if (field.name === 'email') return 'メールアドレスの形式が正しくありません（例：example@fidia.jp）';
+        if (field.name === 'tel') return '電話番号を入力してください';
+        return '入力してください。';
+      }
 
-      if ((field.name === 'name' || field.name === 'university') && [...value].length < 2) {
+      if (field.name === 'name' && [...value].length < 2) {
+        return 'お名前を入力してください';
+      }
+
+      if (field.name === 'university' && [...value].length < 2) {
         return '正しく入力してください。';
       }
 
       if (field.type === 'email' && !isValidEmail(value)) {
-        return '正しく入力してください。';
+        return 'メールアドレスの形式が正しくありません（例：example@fidia.jp）';
       }
 
       if (field.name === 'tel') {
         const digits = toHalfWidthDigits(value).replace(/\D/g, '');
         if (digits.length < 10 || digits.length > 11) {
-          return '正しく入力してください。';
+          return '電話番号を入力してください';
         }
       }
 
@@ -583,9 +592,8 @@ function initAdvisorCarousel() {
 
 /* --------------------------------------------------------------------------
    スティッキーCTA
-   1つ目のフォームの下端を過ぎてから、2つ目のフォームが固定CTAの位置まで
-   近づくまで表示する。下のフォームが見え始めたら、すでに入力できる
-   フォームがあるため固定CTAは不要になる。
+   どちらかのフォームが画面内にある間は非表示。
+   1つ目を完全に過ぎて、2つ目がまだ入る前だけ表示する。
    -------------------------------------------------------------------------- */
 function initStickyCta() {
   const sticky = document.querySelector('.js-cta-sticky');
@@ -594,14 +602,12 @@ function initStickyCta() {
   if (!sticky || !formTop || !formBottomSection) return;
 
   function updateVisibility() {
+    const viewportHeight = window.innerHeight;
     const formTopBottom = formTop.getBoundingClientRect().bottom;
     const formBottomTop = formBottomSection.getBoundingClientRect().top;
-    const viewportHeight = window.innerHeight;
-
-    const pastForm = formTopBottom <= viewportHeight;
-    const beforeBottomForm = formBottomTop > viewportHeight;
-
-    const shouldShow = pastForm && beforeBottomForm;
+    const pastTopForm = formTopBottom <= 0;
+    const beforeBottomForm = formBottomTop >= viewportHeight;
+    const shouldShow = pastTopForm && beforeBottomForm;
     sticky.classList.toggle('is-visible', shouldShow);
     sticky.setAttribute('aria-hidden', String(!shouldShow));
   }
